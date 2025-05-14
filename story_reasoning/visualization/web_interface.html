@@ -1,0 +1,2211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visual Storytelling</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #3f37c9;
+            --accent-color: #4895ef;
+            --light-color: #f8f9fa;
+            --dark-color: #212529;
+            --success-color: #4cc9f0;
+            --warning-color: #f72585;
+            --info-color: #560bad;
+
+            --gdo-color: #4361ee;
+            --gda-color: #4cc9f0;
+            --gdl-color: #f72585;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+        }
+
+        .container {
+            max-width: 1400px;
+            padding: 20px;
+        }
+
+        .card {
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            border: none;
+        }
+
+        .card-header {
+            background-color: var(--light-color);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            padding: 15px 20px;
+            border-top-left-radius: 10px !important;
+            border-top-right-radius: 10px !important;
+        }
+
+        .image-container {
+            position: relative;
+            margin-top: 20px;
+        }
+
+        .image-container img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .bounding-box {
+            position: absolute;
+            border: 3px solid #f72585;
+            pointer-events: none;
+            border-radius: 2px;
+        }
+
+        .highlight {
+            background-color: rgba(255, 255, 0, 0.3);
+            cursor: pointer;
+            position: relative;
+        }
+
+        .highlight::after {
+            content: "\f06e"; /* Eye icon */
+            font-family: "Font Awesome 5 Free";
+            font-weight: 900;
+            font-size: 0.8em;
+            margin-left: 5px;
+            color: var(--primary-color);
+        }
+
+        .table-responsive {
+            margin-bottom: 20px;
+        }
+
+        .image-preview {
+            width: 100px;
+            height: 80px;
+            object-fit: cover;
+            margin-right: 10px;
+            cursor: move;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .sortable-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 8px;
+            background-color: var(--light-color);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .image-number {
+            margin-left: 10px;
+            font-weight: bold;
+            color: var(--secondary-color);
+        }
+
+        .handle {
+            cursor: move;
+            margin-right: 10px;
+            color: #aaa;
+        }
+
+        .nav-tabs .nav-link {
+            padding: 0.8rem 1.2rem;
+            border-radius: 8px 8px 0 0;
+            color: var(--dark-color);
+            font-weight: 500;
+        }
+
+        .nav-tabs .nav-link.active {
+            background-color: #fff;
+            color: var(--primary-color);
+            border-color: #dee2e6 #dee2e6 #fff;
+        }
+
+        .nav-tabs .nav-link img {
+            width: 40px;
+            height: 30px;
+            object-fit: cover;
+            margin-right: 5px;
+            border-radius: 3px;
+        }
+
+        .story-container {
+            margin-top: 20px;
+        }
+
+        .story-frame {
+            margin-bottom: 15px;
+            padding: 15px;
+            border-radius: 8px;
+            background-color: #fff;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .story-frame:hover {
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+        }
+
+        /* Tag styles */
+        gdo, gda, gdl {
+            border-radius: 4px;
+            padding: 2px 5px;
+            cursor: pointer;
+            display: inline;
+            margin: 0 2px;
+            font-weight: 500;
+            position: relative;
+        }
+
+        gdo {
+            background-color: rgba(67, 97, 238, 0.15);
+            color: var(--gdo-color);
+        }
+
+        gda {
+            background-color: rgba(76, 201, 240, 0.15);
+            color: var(--gda-color);
+        }
+
+        gdl {
+            background-color: rgba(247, 37, 133, 0.15);
+            color: var(--gdl-color);
+        }
+
+        .story-preview {
+            overflow-y: auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .story-frame h5 {
+            color: var(--secondary-color);
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .entity-info-tooltip {
+            position: fixed;
+            background-color: var(--dark-color);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 4px;
+            z-index: 1000;
+            max-width: 300px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            pointer-events: none;
+            display: none;
+            font-size: 0.9rem;
+        }
+
+        .entity-info-tooltip h6 {
+            margin-top: 0;
+            margin-bottom: 8px;
+            color: #fff;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            padding-bottom: 5px;
+        }
+
+        .entity-info-tooltip p {
+            margin-bottom: 5px;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--secondary-color);
+            border-color: var(--secondary-color);
+        }
+
+        .btn-success {
+            background-color: var(--success-color);
+            border-color: var(--success-color);
+        }
+
+        .btn-success:hover {
+            background-color: var(--info-color);
+            border-color: var(--info-color);
+        }
+
+        .custom-file-upload {
+            cursor: pointer;
+            display: inline-block;
+            padding: 8px 12px;
+            border-radius: 4px;
+            background-color: var(--light-color);
+            color: var(--dark-color);
+            font-weight: 500;
+            transition: all 0.2s ease;
+            border: 1px solid #dee2e6;
+        }
+
+        .custom-file-upload:hover {
+            background-color: #e9ecef;
+        }
+
+        .file-name {
+            margin-left: 10px;
+            font-size: 0.9rem;
+            color: #6c757d;
+        }
+
+        .tag-legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 15px;
+            padding: 10px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .tag-legend-item {
+            display: flex;
+            align-items: center;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+
+        .tag-sample {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+            margin-right: 8px;
+        }
+
+        .character-card {
+            display: flex;
+            padding: 10px;
+            margin-bottom: 10px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .character-image-wrapper {
+            width: 80px;
+            height: 80px;
+            position: relative;
+            overflow: hidden;
+            border-radius: 5px;
+            margin-right: 15px;
+            background-color: #e9ecef;
+        }
+
+        .character-image {
+            position: absolute;
+            max-width: none;
+            max-height: none;
+        }
+
+        .character-info {
+            flex: 1;
+        }
+
+        .character-info h6 {
+            margin-top: 0;
+            margin-bottom: 5px;
+            color: var(--primary-color);
+        }
+
+        .character-info p {
+            margin-bottom: 3px;
+            font-size: 0.9rem;
+        }
+
+        .character-card-container {
+            max-height: 400px;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+
+        .api-response {
+            width: 100%;
+            height: 200px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 0.9rem;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            margin-bottom: 15px;
+        }
+
+        .generating {
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                opacity: 0.6;
+            }
+            50% {
+                opacity: 1;
+            }
+            100% {
+                opacity: 0.6;
+            }
+        }
+
+        .modal-lg {
+            max-width: 80%;
+        }
+
+        .form-switch {
+            padding-left: 2.5em;
+        }
+    </style>
+</head>
+<body>
+<div class="container mt-4">
+    <h1 class="mb-4 text-center">
+        <i class="fas fa-images me-2 text-primary"></i>
+        Visual Storytelling
+    </h1>
+
+    <ul class="nav nav-tabs" id="mainTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="setup-tab" data-bs-toggle="tab" data-bs-target="#setup" type="button"
+                    role="tab" aria-controls="setup" aria-selected="true">
+                <i class="fas fa-cog me-2"></i>Setup
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="tables-tab" data-bs-toggle="tab" data-bs-target="#tables" type="button"
+                    role="tab" aria-controls="tables" aria-selected="false">
+                <i class="fas fa-table me-2"></i>Tables
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="story-tab" data-bs-toggle="tab" data-bs-target="#story" type="button"
+                    role="tab" aria-controls="story" aria-selected="false">
+                <i class="fas fa-book me-2"></i>Story
+            </button>
+        </li>
+    </ul>
+
+    <div class="tab-content" id="mainTabContent">
+        <!-- Setup Tab -->
+        <div class="tab-pane fade show active" id="setup" role="tabpanel" aria-labelledby="setup-tab">
+            <!-- Mode Selection (always visible) -->
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-sliders-h me-2"></i> Mode Selection</h5>
+                </div>
+                <div class="card-body">
+                    <div class="form-check form-switch mb-3">
+                        <input class="form-check-input" type="checkbox" id="modeToggle" checked>
+                        <label class="form-check-label" for="modeToggle">
+                            <span id="modeLabel">Generation Mode</span>
+                        </label>
+                    </div>
+                    <div class="alert alert-info" id="modeDescription">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <span id="modeDescriptionText">
+                    In Generation Mode, you can upload images and generate CoT analysis and story using the vLLM API.
+                </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Images Section (always visible) -->
+            <div class="card mt-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="fas fa-upload me-2"></i> Upload Images</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label for="imageUpload" class="form-label">Select Multiple Images (png or jpg)</label>
+                        <input class="form-control" type="file" id="imageUpload" multiple accept="image/png,image/jpeg,image/jpg">
+                    </div>
+
+                    <div id="imageSortingContainer" class="d-none mb-3">
+                        <h5><i class="fas fa-sort me-2"></i> Sort Images by Drag & Drop</h5>
+                        <div id="sortableImages" class="mt-2"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Analysis Mode Content (full width) -->
+            <div id="analysisContent" class="mt-4 d-none">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h5 class="mb-0"><i class="fas fa-file-alt me-2"></i> CoT Analysis</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <label class="form-label">Upload CoT File</label>
+                                    <div class="d-flex align-items-center">
+                                        <label class="custom-file-upload">
+                                            <i class="fas fa-file-upload me-2"></i> Choose File
+                                            <input type="file" id="cotFileUpload" accept=".txt,.md" style="display: none;">
+                                        </label>
+                                        <span id="cotFileName" class="file-name">No file chosen</span>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="cotText" class="form-label">Paste CoT Analysis</label>
+                                    <textarea class="form-control" id="cotText" rows="10" placeholder="Paste your CoT analysis here or use the file upload above..."></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h5 class="mb-0"><i class="fas fa-book me-2"></i> Story with Grounding</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <label class="form-label">Upload Story File</label>
+                                    <div class="d-flex align-items-center">
+                                        <label class="custom-file-upload">
+                                            <i class="fas fa-file-upload me-2"></i> Choose File
+                                            <input type="file" id="storyFileUpload" accept=".txt,.md" style="display: none;">
+                                        </label>
+                                        <span id="storyFileName" class="file-name">No file chosen</span>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="storyText" class="form-label">Paste Story with Grounding Tags</label>
+                                    <textarea class="form-control" id="storyText" rows="10" placeholder="Paste your story with grounding tags (<gdi>, <gdo>, <gda>, <gdl>) or use the file upload above..."></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Generation Mode Content (full width) -->
+            <div id="generationContent" class="mt-4">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h5 class="mb-0"><i class="fas fa-cogs me-2"></i> API Configuration</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="apiEndpoint" class="form-label">API Endpoint</label>
+                                            <input type="text" class="form-control" id="apiEndpoint" value="http://localhost:8000/v1" placeholder="Enter API endpoint URL">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="modelName" class="form-label">Model</label>
+                                            <input type="text" class="form-control" id="modelName" value="daniel3303/QwenStoryteller" placeholder="Enter model name">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="temperature" class="form-label">Temperature</label>
+                                            <input type="number" class="form-control" id="temperature" value="0.3" min="0" max="2" step="0.1">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="maxTokens" class="form-label">Max Tokens</label>
+                                            <input type="number" class="form-control" id="maxTokens" value="8192" min="100" max="32768" step="1">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="promptText" class="form-label">Prompt (optional)</label>
+                                    <textarea class="form-control" id="promptText" rows="5" placeholder="Create a story based on these images."></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="mb-0"><i class="fas fa-terminal me-2"></i> Response Console</h5>
+                                <button id="clearConsoleBtn" class="btn btn-sm btn-outline-secondary position-absolute end-0 me-3">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </div>
+                            <div class="card-body">
+                                <div id="responseConsole" class="api-response">
+                                    <p class="text-muted">Console output will appear here...</p>
+                                </div>
+                                <div class="progress d-none" id="generationProgress">
+                                    <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Process/Generate Button (at the bottom) -->
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-play me-2"></i> Process Data</h5>
+                </div>
+                <div class="card-body">
+                    <button id="processBtn" class="btn btn-primary d-none">
+                        <span id="processBtnText"><i class="fas fa-play me-2"></i> Process</span>
+                    </button>
+                    <button id="generateBtn" class="btn btn-success">
+                        <span id="generateBtnText"><i class="fas fa-magic me-2"></i> Generate</span>
+                    </button>
+                    <button id="cancelGeneration" class="btn btn-danger ms-2">
+                        <span><i class="fas fa-times me-2"></i> Cancel</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tables Tab -->
+        <div class="tab-pane fade" id="tables" role="tabpanel" aria-labelledby="tables-tab">
+            <div id="tabbedOutput" class="mt-4">
+                <ul class="nav nav-tabs" id="imageTabs" role="tablist"></ul>
+                <div class="tab-content p-3 border border-top-0 rounded-bottom" id="imageTabContent"></div>
+            </div>
+        </div>
+
+        <!-- Story Tab -->
+        <div class="tab-pane fade" id="story" role="tabpanel" aria-labelledby="story-tab">
+            <div class="row mt-4">
+                <div class="col-md-7">
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="mb-0"><i class="fas fa-align-left me-2"></i> Grounded Story</h5>
+                        </div>
+                        <div class="card-body p-0">
+                            <div id="storyContainer" class="story-preview">
+                                <!-- Story frames will be inserted here -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0"><i class="fas fa-tag me-2"></i> Tag Legend</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="tag-legend">
+                                <div class="tag-legend-item">
+                                    <span class="tag-sample" style="background-color: rgba(67, 97, 238, 0.15);"></span>
+                                    <span><strong>&lt;gdo&gt;</strong> - Character or Object Reference</span>
+                                </div>
+                                <div class="tag-legend-item">
+                                    <span class="tag-sample" style="background-color: rgba(76, 201, 240, 0.15);"></span>
+                                    <span><strong>&lt;gda&gt;</strong> - Character Action</span>
+                                </div>
+                                <div class="tag-legend-item">
+                                    <span class="tag-sample" style="background-color: rgba(247, 37, 133, 0.15);"></span>
+                                    <span><strong>&lt;gdl&gt;</strong> - Location or Background</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-5">
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="mb-0"><i class="fas fa-image me-2"></i> Referenced Image</h5>
+                        </div>
+                        <div class="card-body">
+                            <div id="storyImageContainer" class="image-container">
+                                <img id="storyImage" src="" alt="Story Image">
+                                <div id="storyBoundingBox" class="bounding-box"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0"><i class="fas fa-users me-2"></i> Characters</h5>
+                        </div>
+                        <div class="card-body">
+                            <div id="characterContainer" class="character-card-container">
+                                <!-- Character cards will be inserted here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Entity Info Tooltip -->
+    <div id="entityInfoTooltip" class="entity-info-tooltip"></div>
+</div>
+
+<!-- Bootstrap 5 JS Bundle with Popper -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Sortable.js for drag and drop -->
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // DOM Elements
+        const imageUpload = document.getElementById('imageUpload');
+        const cotText = document.getElementById('cotText');
+        const storyText = document.getElementById('storyText');
+        const cotFileUpload = document.getElementById('cotFileUpload');
+        const storyFileUpload = document.getElementById('storyFileUpload');
+        const cotFileName = document.getElementById('cotFileName');
+        const storyFileName = document.getElementById('storyFileName');
+        const processBtn = document.getElementById('processBtn');
+        const generateBtn = document.getElementById('generateBtn');
+        const imageSortingContainer = document.getElementById('imageSortingContainer');
+        const sortableImages = document.getElementById('sortableImages');
+        const imageTabs = document.getElementById('imageTabs');
+        const imageTabContent = document.getElementById('imageTabContent');
+        const storyContainer = document.getElementById('storyContainer');
+        const storyImage = document.getElementById('storyImage');
+        const storyBoundingBox = document.getElementById('storyBoundingBox');
+        const tablesTab = document.getElementById('tables-tab');
+        const storyTab = document.getElementById('story-tab');
+        const entityInfoTooltip = document.getElementById('entityInfoTooltip');
+        const characterContainer = document.getElementById('characterContainer');
+        const responseConsole = document.getElementById('responseConsole');
+        const generationProgress = document.getElementById('generationProgress');
+        const modeToggle = document.getElementById('modeToggle');
+        const modeLabel = document.getElementById('modeLabel');
+        const modeDescriptionText = document.getElementById('modeDescriptionText');
+        const analysisContent = document.getElementById('analysisContent');
+        const generationContent = document.getElementById('generationContent');
+        const cancelGeneration = document.getElementById('cancelGeneration');
+        const clearConsoleBtn = document.getElementById('clearConsoleBtn');
+        const apiEndpoint = document.getElementById('apiEndpoint');
+        const modelName = document.getElementById('modelName');
+        const temperature = document.getElementById('temperature');
+        const maxTokens = document.getElementById('maxTokens');
+        const promptText = document.getElementById('promptText');
+
+        // Variables
+        let uploadedImages = [];
+        let sortedImages = [];
+        let parsedData = {};
+        let imageUrls = [];
+        let entityMap = {}; // Maps entity IDs to their data
+        let characters = []; // Store all characters
+        let generationController = null; // AbortController for fetch
+        let isGenerating = false;
+        let cotResponse = "";
+        let storyResponse = "";
+        let thoughtMode = false;
+        let streamedResponse = "";
+
+        // Initialize Sortable for image sorting
+        let sortable = null;
+
+        // Mode Toggle
+        modeToggle.addEventListener('change', function () {
+            if (this.checked) {
+                // Generation Mode
+                modeLabel.textContent = "Generation Mode";
+                modeDescriptionText.textContent = "In Generation Mode, you can upload images and generate CoT analysis and story using the vLLM API.";
+                analysisContent.classList.add('d-none');
+                generationContent.classList.remove('d-none');
+                processBtn.classList.add('d-none');
+                generateBtn.classList.remove('d-none');
+                cancelGeneration.classList.remove('d-none');
+            } else {
+                // Analysis Mode
+                modeLabel.textContent = "Analysis Mode";
+                modeDescriptionText.textContent = "In Analysis Mode, you can upload existing story content and CoT analysis to visualize.";
+                analysisContent.classList.remove('d-none');
+                generationContent.classList.add('d-none');
+                processBtn.classList.remove('d-none');
+                generateBtn.classList.add('d-none');
+                cancelGeneration.classList.add('d-none');
+            }
+        });
+
+        // Clear Console Button
+        clearConsoleBtn.addEventListener('click', function () {
+            responseConsole.innerHTML = '<p class="text-muted">Console output cleared...</p>';
+        });
+
+        // Handle file uploads for CoT analysis
+        cotFileUpload.addEventListener('change', function (e) {
+            if (this.files.length > 0) {
+                const file = this.files[0];
+                cotFileName.textContent = file.name;
+
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    cotText.value = e.target.result;
+                };
+                reader.readAsText(file);
+            }
+        });
+
+        // Handle file uploads for Story
+        storyFileUpload.addEventListener('change', function (e) {
+            if (this.files.length > 0) {
+                const file = this.files[0];
+                storyFileName.textContent = file.name;
+
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    storyText.value = e.target.result;
+                };
+                reader.readAsText(file);
+            }
+        });
+
+        imageUpload.addEventListener('change', function (e) {
+            uploadedImages = Array.from(e.target.files);
+            // Show sorting interface
+            displayImagesForSorting();
+        });
+
+        function displayImagesForSorting() {
+            if (uploadedImages.length === 0) return;
+
+            // Clear previous items
+            sortableImages.innerHTML = '';
+
+            // Create preview for each image
+            uploadedImages.forEach((image, index) => {
+                const imageUrl = URL.createObjectURL(image);
+
+                const item = document.createElement('div');
+                item.className = 'sortable-item';
+                item.dataset.index = index;
+
+                item.innerHTML = `
+                    <i class="fas fa-grip-lines handle"></i>
+                    <img src="${imageUrl}" class="image-preview">
+                    <div class="image-number">Image ${index + 1}</div>
+                `;
+
+                sortableImages.appendChild(item);
+            });
+
+            // Initialize sortable if not already initialized
+            if (!sortable) {
+                sortable = new Sortable(sortableImages, {
+                    animation: 150,
+                    handle: '.handle',
+                    onEnd: function () {
+                        // Update the image numbers after sorting
+                        Array.from(sortableImages.children).forEach((item, i) => {
+                            item.querySelector('.image-number').textContent = `Image ${i + 1}`;
+                        });
+
+                        // Update sorted images automatically when order changes
+                        const sortedIndices = Array.from(sortableImages.children).map(item => parseInt(item.dataset.index));
+                        sortedImages = sortedIndices.map(index => uploadedImages[index]);
+                        imageUrls = sortedImages.map(image => URL.createObjectURL(image));
+                    }
+                });
+            }
+
+            // Show the sorting container
+            imageSortingContainer.classList.remove('d-none');
+        }
+
+        processBtn.addEventListener('click', function() {
+            // Use sortedImages if available, otherwise use uploadedImages
+            const imagesToUse = sortedImages.length > 0 ? sortedImages : uploadedImages;
+
+            if (imagesToUse.length === 0) {
+                alert('Please upload at least one image.');
+                return;
+            }
+
+            // Only check for CoT text in Analysis Mode (when modeToggle is not checked)
+            if (!modeToggle.checked && !cotText.value.trim()) {
+                alert('Please paste CoT analysis text or upload a CoT file.');
+                return;
+            }
+
+            // Update image URLs if not already set
+            if (imageUrls.length === 0) {
+                imageUrls = imagesToUse.map(image => URL.createObjectURL(image));
+            }
+
+            // In Analysis Mode, parse the inputs
+            if (!modeToggle.checked) {
+                parseCoT(cotText.value);
+                if (storyText.value.trim()) {
+                    parseStory(storyText.value);
+                }
+            }
+
+            createTabbedInterface();
+            createCharacterCards();
+
+            // Switch to tables tab after processing
+            const tablesTabTrigger = new bootstrap.Tab(tablesTab);
+            tablesTabTrigger.show();
+        });
+
+        // Generate button event listener
+        generateBtn.addEventListener('click', function () {
+            // Use sortedImages if available, otherwise use uploadedImages
+            const imagesToUse = sortedImages.length > 0 ? sortedImages : uploadedImages;
+
+            if (imagesToUse.length === 0) {
+                alert('Please upload at least one image.');
+                return;
+            }
+
+            // Update image URLs if not already set
+            if (imageUrls.length === 0) {
+                imageUrls = imagesToUse.map(image => URL.createObjectURL(image));
+            }
+
+            // Reset variables
+            cotResponse = "";
+            storyResponse = "";
+            streamedResponse = "";
+            thoughtMode = false;
+            
+            // Start generation
+            generateStory(imagesToUse);
+        });
+
+        // Cancel generation button
+        cancelGeneration.addEventListener('click', function () {
+            if (generationController) {
+                generationController.abort();
+                generationController = null;
+            }
+
+            isGenerating = false;
+        });
+
+        function parseCoT(text) {
+            parsedData = {};
+            entityMap = {};
+            characters = [];
+            let narrativeStructure = null;
+
+            
+            // Split by image sections
+            const imageSections = text.split(/##\s+Image\s+\d+/);
+
+            // Process each image section
+            for (let i = 1; i < imageSections.length; i++) {
+                const imageNumber = i;
+                const section = imageSections[i];
+
+                const imageData = {
+                    characters: [],
+                    objects: [],
+                    setting: []
+                };
+
+                // Parse character table
+                if (section.includes('### Characters')) {
+                    const characterSection = section.split('### Characters')[1].split('###')[0];
+                    const characterRows = characterSection.split('\n').filter(row => row.includes('|'));
+
+                    if (characterRows.length >= 3) { // Header, separator, and at least one data row
+                        const headers = characterRows[0].split('|').map(h => h.trim()).filter(h => h);
+
+                        for (let j = 2; j < characterRows.length; j++) {
+                            const row = characterRows[j];
+                            const cells = row.split('|').map(cell => cell.trim()).filter(cell => cell);
+
+                            if (cells.length >= headers.length) {
+                                const character = {};
+                                headers.forEach((header, index) => {
+                                    character[header.toLowerCase().replace(/\s+/g, '_')] = cells[index];
+                                });
+
+                                // Parse bounding box if available
+                                if (character.bounding_box) {
+                                    const bbox = character.bounding_box.split(',').map(Number);
+                                    if (bbox.length === 4) {
+                                        character.bbox = {
+                                            x1: bbox[0],
+                                            y1: bbox[1],
+                                            x2: bbox[2],
+                                            y2: bbox[3]
+                                        };
+                                    }
+                                }
+
+                                imageData.characters.push(character);
+
+                                // Add to characters array
+                                if (character.character_id && character.name) {
+                                    // Check if we already have this character
+                                    const existingChar = characters.find(c => c.id === character.character_id);
+
+                                    if (!existingChar) {
+                                        characters.push({
+                                            id: character.character_id,
+                                            name: character.name,
+                                            description: character.description || '',
+                                            emotions: character.emotions || '',
+                                            actions: character.actions || '',
+                                            image: imageNumber,
+                                            bbox: character.bbox,
+                                            appearances: [imageNumber]
+                                        });
+                                    } else {
+                                        // Add this appearance
+                                        if (!existingChar.appearances.includes(imageNumber)) {
+                                            existingChar.appearances.push(imageNumber);
+                                        }
+                                    }
+                                }
+
+                                // Add to entity map if it has character_id
+                                if (character.character_id) {
+                                    if (!entityMap[character.character_id]) {
+                                        entityMap[character.character_id] = {
+                                            type: 'character',
+                                            appearances: [],
+                                            data: character
+                                        };
+                                    }
+
+                                    // Add this image to appearances
+                                    entityMap[character.character_id].appearances.push({
+                                        imageIndex: imageNumber,
+                                        data: character
+                                    });
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // Parse object table
+                if (section.includes('### Objects')) {
+                    const objectSection = section.split('### Objects')[1].split('###')[0];
+                    const objectRows = objectSection.split('\n').filter(row => row.includes('|'));
+                    if (objectRows.length >= 3) {
+                        const headers = objectRows[0].split('|').map(h => h.trim()).filter(h => h);
+
+                        for (let j = 2; j < objectRows.length; j++) {
+                            const row = objectRows[j];
+                            const cells = row.split('|').map(cell => cell.trim()).filter(cell => cell);
+
+                            if (cells.length >= headers.length) {
+                                const object = {};
+                                headers.forEach((header, index) => {
+                                    object[header.toLowerCase().replace(/\s+/g, '_')] = cells[index];
+                                });
+
+                                // Parse bounding box if available
+                                if (object.bounding_box) {
+                                    const bbox = object.bounding_box.split(',').map(Number);
+                                    if (bbox.length === 4) {
+                                        object.bbox = {
+                                            x1: bbox[0],
+                                            y1: bbox[1],
+                                            x2: bbox[2],
+                                            y2: bbox[3]
+                                        };
+                                    }
+                                }
+
+                                imageData.objects.push(object);
+
+                                // Add to entity map if it has object_id
+                                if (object.object_id) {
+                                    if (!entityMap[object.object_id]) {
+                                        entityMap[object.object_id] = {
+                                            type: 'object',
+                                            appearances: [],
+                                            data: object
+                                        };
+                                    }
+
+                                    // Add this image to appearances
+                                    entityMap[object.object_id].appearances.push({
+                                        imageIndex: imageNumber,
+                                        data: object
+                                    });
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // Parse setting table
+                if (section.includes('### Setting')) {
+                    const settingSection = section.split('### Setting')[1].split('###')[0];
+                    const settingRows = settingSection.split('\n').filter(row => row.includes('|'));
+
+                    if (settingRows.length >= 3) {
+                        const headers = settingRows[0].split('|').map(h => h.trim()).filter(h => h);
+
+                        for (let j = 2; j < settingRows.length; j++) {
+                            const row = settingRows[j];
+                            const cells = row.split('|').map(cell => cell.trim()).filter(cell => cell);
+
+                            if (cells.length >= headers.length) {
+                                const setting = {};
+                                headers.forEach((header, index) => {
+                                    setting[header.toLowerCase().replace(/\s+/g, '_')] = cells[index];
+                                });
+
+                                imageData.setting.push(setting);
+
+                                // Add setting elements to entity map with a background ID (bg#)
+                                if (setting.setting_element && setting.description) {
+                                    const bgId = `bg${imageNumber}`;
+                                    if (!entityMap[bgId]) {
+                                        entityMap[bgId] = {
+                                            type: 'background',
+                                            appearances: [],
+                                            data: setting
+                                        };
+                                    }
+
+                                    // Add this image to appearances
+                                    entityMap[bgId].appearances.push({
+                                        imageIndex: imageNumber,
+                                        data: setting
+                                    });
+                                }
+                            }
+                        }
+                    }
+                }
+
+                parsedData[imageNumber] = imageData;
+            }
+
+            // Check for Narrative Structure section after processing all images
+            if (text.includes('## Narrative Structure')) {
+                const narrativeSection = text.split('## Narrative Structure')[1];
+                const narrativeRows = narrativeSection.split('\n').filter(row => row.includes('|'));
+
+                if (narrativeRows.length >= 3) {
+                    const headers = narrativeRows[0].split('|').map(h => h.trim()).filter(h => h);
+
+                    narrativeStructure = {
+                        headers: headers,
+                        rows: []
+                    };
+
+                    for (let j = 2; j < narrativeRows.length; j++) {
+                        const row = narrativeRows[j];
+                        const cells = row.split('|').map(cell => cell.trim()).filter(cell => cell);
+                        
+                        if (cells.length >= headers.length) {
+                            const rowData = {};
+                            headers.forEach((header, index) => {
+                                rowData[header.toLowerCase().replace(/\s+/g, '_')] = cells[index];
+                            });
+                            narrativeStructure.rows.push(rowData);
+                        }
+                    }
+
+                    
+                    // Store the narrative structure data in a special key
+                    parsedData.narrativeStructure = narrativeStructure;
+                }
+            }
+        }
+
+        function createTabbedInterface() {
+            // Track existing tabs to avoid recreating them
+            const existingTabIds = new Set(
+                Array.from(imageTabs.querySelectorAll('.nav-link'))
+                    .map(tab => tab.id)
+            );
+
+            // Check if we have data to display
+            if (Object.keys(parsedData).length === 0) {
+                if (!imageTabContent.querySelector('.alert')) {
+                    imageTabContent.innerHTML = '<div class="alert alert-warning">No data parsed from the CoT analysis.</div>';
+                }
+                return;
+            }else{
+                let alert = imageTabContent.querySelector('.alert');
+                if(alert) alert.remove();
+            }
+
+            // Make sure we don't have more tabs than images
+            const imageCount = Math.min(Object.keys(parsedData).length, imageUrls.length);
+            let activeTabExists = false;
+
+            // Create tab for each image
+            for (let i = 1; i <= imageCount; i++) {
+                const imageUrl = imageUrls[i - 1];
+                const imageData = parsedData[i];
+
+                // Skip if no data for this image
+                if (!imageData) continue;
+
+                // Check if this tab already exists
+                const tabId = `image-tab-${i}`;
+                const contentId = `image-content-${i}`;
+
+                if (!existingTabIds.has(tabId)) {
+                    // Tab doesn't exist yet, create it
+                    const tab = document.createElement('li');
+                    tab.className = 'nav-item';
+                    tab.innerHTML = `
+                <a class="nav-link" id="${tabId}" data-bs-toggle="tab" 
+                   href="#${contentId}" role="tab" aria-controls="${contentId}" 
+                   aria-selected="false">
+                    <img src="${imageUrl}" alt="Image ${i}">
+                    Image ${i}
+                </a>
+            `;
+                    imageTabs.appendChild(tab);
+
+                    // Create tab content
+                    const tabContent = document.createElement('div');
+                    tabContent.className = 'tab-pane fade';
+                    tabContent.id = contentId;
+                    tabContent.setAttribute('role', 'tabpanel');
+                    tabContent.setAttribute('aria-labelledby', tabId);
+
+                    // Create content
+                    const content = document.createElement('div');
+
+                    // Add image
+                    const imageContainer = document.createElement('div');
+                    imageContainer.className = 'image-container mb-4';
+                    imageContainer.innerHTML = `
+                <img src="${imageUrl}" alt="Image ${i}" class="mb-3" style="max-width: 100%;">
+                <div class="bounding-box" style="display: none;"></div>
+            `;
+                    content.appendChild(imageContainer);
+
+                    // Create character table if available
+                    if (imageData.characters.length > 0) {
+                        content.appendChild(createTable('Characters', imageData.characters, i));
+                    }
+
+                    // Create object table if available
+                    if (imageData.objects.length > 0) {
+                        content.appendChild(createTable('Objects', imageData.objects, i));
+                    }
+
+                    // Create setting table if available
+                    if (imageData.setting.length > 0) {
+                        content.appendChild(createTable('Setting', imageData.setting, i));
+                    }
+
+                    tabContent.appendChild(content);
+                    imageTabContent.appendChild(tabContent);
+                } else {
+                    // Tab exists, update its content
+                    const tabContent = document.getElementById(contentId);
+                    if (tabContent) {
+                        // If content exists, update it
+                        let content = tabContent.querySelector('div');
+                        if (!content) {
+                            content = document.createElement('div');
+                            tabContent.appendChild(content);
+                        }
+
+                        // Clear the content except for the image container
+                        const imageContainer = content.querySelector('.image-container');
+                        content.innerHTML = '';
+                        if (imageContainer) {
+                            content.appendChild(imageContainer);
+                        } else {
+                            // Create image container if it doesn't exist
+                            const newImageContainer = document.createElement('div');
+                            newImageContainer.className = 'image-container mb-4';
+                            newImageContainer.innerHTML = `
+                        <img src="${imageUrl}" alt="Image ${i}" class="mb-3" style="max-width: 100%;">
+                        <div class="bounding-box" style="display: none;"></div>
+                    `;
+                            content.appendChild(newImageContainer);
+                        }
+
+                        // Create character table if available
+                        if (imageData.characters.length > 0) {
+                            content.appendChild(createTable('Characters', imageData.characters, i));
+                        }
+
+                        // Create object table if available
+                        if (imageData.objects.length > 0) {
+                            content.appendChild(createTable('Objects', imageData.objects, i));
+                        }
+
+                        // Create setting table if available
+                        if (imageData.setting.length > 0) {
+                            content.appendChild(createTable('Setting', imageData.setting, i));
+                        }
+                    }
+                }
+
+                // Check if this tab is active
+                const tabLink = document.getElementById(tabId);
+                if (tabLink && tabLink.classList.contains('active')) {
+                    activeTabExists = true;
+                }
+            }
+
+
+            // Add Narrative Structure tab if available
+            if (parsedData.narrativeStructure) {
+                const tabId = `narrative-tab`;
+                const contentId = `narrative-content`;
+
+                // Check if this tab already exists
+                if (!existingTabIds.has(tabId)) {
+                    // Create the tab
+                    const tab = document.createElement('li');
+                    tab.className = 'nav-item';
+                    tab.innerHTML = `
+                <a class="nav-link" id="${tabId}" data-bs-toggle="tab" 
+                   href="#${contentId}" role="tab" aria-controls="${contentId}" 
+                   aria-selected="false">
+                    <i class="fas fa-book me-2"></i>Narrative Structure
+                </a>
+            `;
+                    imageTabs.appendChild(tab);
+
+                    // Create tab content
+                    const tabContent = document.createElement('div');
+                    tabContent.className = 'tab-pane fade';
+                    tabContent.id = contentId;
+                    tabContent.setAttribute('role', 'tabpanel');
+                    tabContent.setAttribute('aria-labelledby', tabId);
+
+                    // Create content with narrative structure table
+                    const content = document.createElement('div');
+
+                    // Create the narrative structure table
+                    const narrativeTable = createNarrativeTable(parsedData.narrativeStructure);
+                    content.appendChild(narrativeTable);
+
+                    tabContent.appendChild(content);
+                    imageTabContent.appendChild(tabContent);
+                }else{
+                    // Tab exists, update its content
+                    const tabContent = document.getElementById(contentId);
+                    if (tabContent) {
+                        // If content exists, update it
+                        let content = tabContent.querySelector('div');
+                        if (!content) {
+                            content = document.createElement('div');
+                            tabContent.appendChild(content);
+                        }
+
+                        // Clear the content except for the image container
+                        content.innerHTML = '';
+
+                        // Create the narrative structure table
+                        const narrativeTable = createNarrativeTable(parsedData.narrativeStructure);
+                        content.appendChild(narrativeTable);
+                    }
+                }
+            }
+            
+
+            // If no active tab exists, activate the first tab
+            if (!activeTabExists && imageCount > 0) {
+                const firstTabId = `image-tab-1`;
+                const firstTab = document.getElementById(firstTabId);
+                if (firstTab) {
+                    // Use Bootstrap's Tab API for proper activation
+                    const bootstrapTab = new bootstrap.Tab(firstTab);
+                    bootstrapTab.show();
+                }
+            }
+
+            // Initialize all tabs with proper Bootstrap behavior
+            const allTabs = imageTabs.querySelectorAll('[data-bs-toggle="tab"]');
+            allTabs.forEach(tabElement => {
+                // Ensure the tab is properly initialized with Bootstrap
+                if (!tabElement._bootstrapTab) {
+                    new bootstrap.Tab(tabElement);
+                }
+            });
+
+            // Add event listeners for highlighted elements
+            const highlightElements = document.querySelectorAll('.highlight');
+            highlightElements.forEach(element => {
+                element.addEventListener('mouseenter', handleHighlight);
+                element.addEventListener('mouseleave', handleUnhighlight);
+            });
+
+
+            // Add this in place of the current window.scrollTo code in createTabbedInterface
+            // Check if user is already near the bottom before scrolling
+            const scrollPosition = window.scrollY;
+            const windowHeight = window.innerHeight;
+            const documentHeight = document.body.scrollHeight;
+            const distanceFromBottom = documentHeight - (scrollPosition + windowHeight);
+
+            // Only scroll if within 300px of the bottom
+            if (distanceFromBottom < 300) {
+                window.scrollTo({
+                    top: document.body.scrollHeight,
+                    behavior: 'smooth'
+                });
+            }
+        }
+
+        function createTable(title, data, imageIndex) {
+            const section = document.createElement('div');
+            section.innerHTML = `<h4><i class="fas fa-table me-2"></i>${title}</h4>`;
+
+            const tableContainer = document.createElement('div');
+            tableContainer.className = 'table-responsive';
+
+            const table = document.createElement('table');
+            table.className = 'table table-striped table-bordered';
+
+            // Add header
+            const headers = Object.keys(data[0])
+                .filter(key => key !== 'bbox')
+                .map(key => key.replace(/_/g, ' '))
+                .map(key => key.charAt(0).toUpperCase() + key.slice(1));
+
+            const headerRow = document.createElement('tr');
+            headers.forEach(header => {
+                const th = document.createElement('th');
+                th.textContent = header;
+                headerRow.appendChild(th);
+            });
+
+            const thead = document.createElement('thead');
+            thead.appendChild(headerRow);
+            table.appendChild(thead);
+
+            // Add body
+            const tbody = document.createElement('tbody');
+            data.forEach(item => {
+                const tr = document.createElement('tr');
+
+                headers.forEach(header => {
+                    const key = header.toLowerCase().replace(/\s+/g, '_');
+                    const td = document.createElement('td');
+                    td.textContent = item[key] || '';
+
+                    // Add highlight for entity IDs with bounding boxes
+                    if ((key === 'character_id' || key === 'object_id') && item.bbox) {
+                        td.classList.add('highlight');
+                        td.dataset.imageNum = imageIndex;
+                        td.dataset.entityId = item[key];
+                        td.dataset.x1 = item.bbox.x1;
+                        td.dataset.y1 = item.bbox.y1;
+                        td.dataset.x2 = item.bbox.x2;
+                        td.dataset.y2 = item.bbox.y2;
+                    }
+
+                    tr.appendChild(td);
+                });
+
+                tbody.appendChild(tr);
+            });
+
+            table.appendChild(tbody);
+            tableContainer.appendChild(table);
+            section.appendChild(tableContainer);
+
+            return section;
+        }
+
+        function createCharacterCards() {
+            // Clear previous content
+            characterContainer.innerHTML = '';
+
+            // If no characters, show message
+            if (characters.length === 0) {
+                characterContainer.innerHTML = '<p class="text-muted">No characters found in the CoT analysis.</p>';
+                return;
+            }
+
+            // Create a card for each character
+            characters.forEach(character => {
+                const card = document.createElement('div');
+                card.className = 'character-card';
+
+                // Get the character's first appearance image
+                const imageIndex = character.image - 1; // Convert to 0-based index
+
+                // Create the card content
+                card.innerHTML = `
+                    <div class="character-image-wrapper">
+                        <canvas id="character-canvas-${character.id}" width="80" height="80"></canvas>
+                    </div>
+                    <div class="character-info">
+                        <h6>${character.name}</h6>
+                        <p><strong>ID:</strong> ${character.id}</p>
+                        ${character.description ? `<p><small>${character.description}</small></p>` : ''}
+                        ${character.emotions ? `<p><small><strong>Emotions:</strong> ${character.emotions}</small></p>` : ''}
+                        <p><small><strong>Appears in:</strong> Image${character.appearances.length > 1 ? 's' : ''} ${character.appearances.join(', ')}</small></p>
+                    </div>
+                `;
+
+                // Add the card to the container
+                characterContainer.appendChild(card);
+
+                // If the character has a bounding box, create a cropped version using canvas
+                if (character.bbox && imageIndex >= 0 && imageIndex < imageUrls.length) {
+                    const img = new Image();
+                    img.onload = function () {
+                        const canvas = document.getElementById(`character-canvas-${character.id}`);
+                        if (!canvas) return;
+
+                        const ctx = canvas.getContext('2d');
+                        const bbox = character.bbox;
+
+                        // Calculate source and destination dimensions
+                        const sourceX = bbox.x1;
+                        const sourceY = bbox.y1;
+                        const sourceWidth = bbox.x2 - bbox.x1;
+                        const sourceHeight = bbox.y2 - bbox.y1;
+
+                        // Clear the canvas
+                        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                        // Draw the cropped image (centered and scaled to fit)
+                        const aspectRatio = sourceWidth / sourceHeight;
+                        let destWidth, destHeight, destX, destY;
+
+                        if (aspectRatio > 1) {
+                            // Wider than tall
+                            destWidth = canvas.width;
+                            destHeight = canvas.width / aspectRatio;
+                            destX = 0;
+                            destY = (canvas.height - destHeight) / 2;
+                        } else {
+                            // Taller than wide
+                            destHeight = canvas.height;
+                            destWidth = canvas.height * aspectRatio;
+                            destX = (canvas.width - destWidth) / 2;
+                            destY = 0;
+                        }
+
+                        ctx.drawImage(
+                            img,
+                            sourceX, sourceY, sourceWidth, sourceHeight,
+                            destX, destY, destWidth, destHeight
+                        );
+                    };
+                    img.src = imageUrls[imageIndex];
+                }
+            });
+        }
+
+        function parseStory(text) {
+            // Clear previous content only if we're starting fresh
+            // Don't clear if we're doing incremental updates
+            const existingFrames = storyContainer.querySelectorAll('.story-frame');
+            const frameIds = Array.from(existingFrames).map(frame => parseInt(frame.dataset.image));
+
+            // Find all story frames using <gdi> tags, including incomplete ones
+            // This regex will match both complete and incomplete gdi tags
+            const storyRegex = /<gdi image(\d+)>([\s\S]*?)(?:<\/gdi>|$)/g;
+            let storyMatch;
+
+            while ((storyMatch = storyRegex.exec(text)) !== null) {
+                const imageNumber = parseInt(storyMatch[1]);
+                let frameContent = storyMatch[2].trim();
+
+                // Check if this frame already exists
+                let frameDiv = document.querySelector(`.story-frame[data-image="${imageNumber}"]`);
+
+                if (!frameDiv) {
+                    // Create a new frame div if it doesn't exist
+                    frameDiv = document.createElement('div');
+                    frameDiv.className = 'story-frame';
+                    frameDiv.dataset.image = imageNumber;
+                    frameDiv.innerHTML = `<h5><i class="fas fa-image me-2"></i>Image ${imageNumber}</h5>`;
+
+                    // Create content div
+                    const contentDiv = document.createElement('div');
+                    contentDiv.className = 'frame-content';
+                    frameDiv.appendChild(contentDiv);
+
+                    // Add to the container
+                    storyContainer.appendChild(frameDiv);
+
+                    // Add event listener
+                    frameDiv.addEventListener('mouseenter', handleFrameHover);
+                }
+
+                // Update the content (even if incomplete)
+                const contentDiv = frameDiv.querySelector('.frame-content');
+                if (contentDiv) {
+                    // Process all gdo, gda, and gdl tags
+                    const processedContent = processGroundedTags(frameContent, imageNumber);
+                    contentDiv.innerHTML = processedContent;
+
+                    // Add event listeners to all grounded tags (gdo, gda, gdl)
+                    const gdoTags = contentDiv.querySelectorAll('gdo');
+                    const gdaTags = contentDiv.querySelectorAll('gda');
+                    const gdlTags = contentDiv.querySelectorAll('gdl');
+
+                    [...gdoTags, ...gdaTags, ...gdlTags].forEach(tag => {
+                        tag.addEventListener('mouseenter', handleGroundedTagHover);
+                        tag.addEventListener('mouseleave', handleGroundedTagLeave);
+                    });
+                }
+            }
+
+            // Scroll to the most recently updated frame
+            const lastFrame = storyContainer.lastElementChild;
+            if (lastFrame) {
+                lastFrame.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+        }
+
+        function processGroundedTags(content, imageNumber) {
+            // Process <gdo> tags
+            content = content.replace(/<gdo\s+([^>]+)>([\s\S]*?)<\/gdo>/g, function (match, entityAttr, text) {
+                const entityId = entityAttr.trim();
+                return `<gdo data-entity="${entityId}" data-image="${imageNumber}">${text}</gdo>`;
+            });
+
+            // Process <gda> tags
+            content = content.replace(/<gda\s+([^>]+)>([\s\S]*?)<\/gda>/g, function (match, entityAttr, text) {
+                const entityId = entityAttr.trim();
+                return `<gda data-entity="${entityId}" data-image="${imageNumber}">${text}</gda>`;
+            });
+
+            // Process <gdl> tags
+            content = content.replace(/<gdl\s+([^>]+)>([\s\S]*?)<\/gdl>/g, function (match, entityAttr, text) {
+                const entityId = entityAttr.trim();
+                return `<gdl data-entity="${entityId}" data-image="${imageNumber}">${text}</gdl>`;
+            });
+
+            return content;
+        }
+
+        function handleFrameHover(e) {
+            const frame = e.currentTarget;
+            const imageNum = parseInt(frame.dataset.image);
+
+            // Show the corresponding image
+            if (imageNum > 0 && imageNum <= imageUrls.length) {
+                // Show the image
+                storyImage.src = imageUrls[imageNum - 1];
+                storyImage.alt = `Image ${imageNum}`;
+
+                // Display the image
+                storyImage.parentElement.style.display = 'block';
+
+                // Hide any bounding box
+                storyBoundingBox.style.display = 'none';
+            }
+        }
+
+        function handleGroundedTagHover(e) {
+            const tag = e.target;
+            const entityId = tag.dataset.entity;
+            const imageNum = parseInt(tag.dataset.image);
+
+            // Show the corresponding image
+            if (imageNum > 0 && imageNum <= imageUrls.length) {
+                // Show the image
+                storyImage.src = imageUrls[imageNum - 1];
+                storyImage.alt = `Image ${imageNum}`;
+
+                // Display the image
+                storyImage.parentElement.style.display = 'block';
+
+                // If this entity exists in our map
+                if (entityMap[entityId]) {
+                    const entity = entityMap[entityId];
+
+                    // Find the appearance in this specific image
+                    const appearance = entity.appearances.find(a => a.imageIndex === imageNum);
+
+                    if (appearance && appearance.data.bbox) {
+                        // Draw the bounding box
+                        const bbox = appearance.data.bbox;
+                        drawBoundingBox(storyImage, storyBoundingBox, bbox.x1, bbox.y1, bbox.x2, bbox.y2);
+                    }
+
+                    // Show entity information tooltip
+                    showEntityTooltip(e, entity);
+                }
+            }
+        }
+
+        function handleGroundedTagLeave() {
+            // Hide the bounding box and tooltip
+            storyBoundingBox.style.display = 'none';
+            entityInfoTooltip.style.display = 'none';
+        }
+
+        function showEntityTooltip(event, entity) {
+            // Create tooltip content based on entity type
+            let tooltipContent = '';
+
+            if (entity.type === 'character') {
+                tooltipContent = `
+                    <h6>${entity.data.name || 'Character'}</h6>
+                    <p><strong>ID:</strong> ${entity.data.character_id}</p>
+                    ${entity.data.description ? `<p><strong>Description:</strong> ${entity.data.description}</p>` : ''}
+                    ${entity.data.emotions ? `<p><strong>Emotions:</strong> ${entity.data.emotions}</p>` : ''}
+                    ${entity.data.actions ? `<p><strong>Actions:</strong> ${entity.data.actions}</p>` : ''}
+                    <p><strong>Appears in images:</strong> ${entity.appearances.map(a => a.imageIndex).join(', ')}</p>
+                `;
+            } else if (entity.type === 'object') {
+                tooltipContent = `
+                    <h6>${entity.data.description || 'Object'}</h6>
+                    <p><strong>ID:</strong> ${entity.data.object_id}</p>
+                    ${entity.data.function ? `<p><strong>Function:</strong> ${entity.data.function}</p>` : ''}
+                    ${entity.data.interaction ? `<p><strong>Interaction:</strong> ${entity.data.interaction}</p>` : ''}
+                    <p><strong>Appears in images:</strong> ${entity.appearances.map(a => a.imageIndex).join(', ')}</p>
+                `;
+            } else if (entity.type === 'background') {
+                tooltipContent = `
+                    <h6>${entity.data.description || 'Background'}</h6>
+                    <p><strong>ID:</strong> ${entity.data.setting_element}</p>
+                    ${entity.data.mood ? `<p><strong>Mood:</strong> ${entity.data.mood}</p>` : ''}
+                    ${entity.data.time ? `<p><strong>Time:</strong> ${entity.data.time}</p>` : ''}
+                    <p><strong>Appears in image:</strong> ${entity.appearances[0].imageIndex}</p>
+                `;
+            }
+
+            // Update tooltip content
+            entityInfoTooltip.innerHTML = tooltipContent;
+
+            // Position the tooltip near the mouse
+            entityInfoTooltip.style.left = `${event.pageX + 15}px`;
+            entityInfoTooltip.style.top = `${event.pageY + 15}px`;
+
+            // Show the tooltip
+            entityInfoTooltip.style.display = 'block';
+        }
+
+        function handleHighlight(e) {
+            const element = e.target;
+            const imageNum = parseInt(element.dataset.imageNum);
+            const entityId = element.dataset.entityId;
+            const tabContent = document.getElementById(`image-content-${imageNum}`);
+
+            if (!tabContent) return;
+
+            // Get the image and bounding box elements within the tab
+            const img = tabContent.querySelector('img');
+            const box = tabContent.querySelector('.bounding-box');
+
+            if (!img || !box) return;
+
+            // Get bounding box coordinates
+            const x1 = parseInt(element.dataset.x1);
+            const y1 = parseInt(element.dataset.y1);
+            const x2 = parseInt(element.dataset.x2);
+            const y2 = parseInt(element.dataset.y2);
+
+            // Draw the bounding box
+            if (img.complete) {
+                drawBoundingBox(img, box, x1, y1, x2, y2);
+            } else {
+                img.onload = function () {
+                    drawBoundingBox(img, box, x1, y1, x2, y2);
+                };
+            }
+
+            // Show entity information tooltip
+            if (entityId && entityMap[entityId]) {
+                showEntityTooltip(e, entityMap[entityId]);
+            }
+        }
+
+        function handleUnhighlight(e) {
+            const element = e.target;
+            const imageNum = parseInt(element.dataset.imageNum);
+            const tabContent = document.getElementById(`image-content-${imageNum}`);
+
+            if (!tabContent) return;
+
+            // Hide the bounding box
+            const box = tabContent.querySelector('.bounding-box');
+            if (box) box.style.display = 'none';
+
+            // Hide the tooltip
+            entityInfoTooltip.style.display = 'none';
+        }
+
+        function drawBoundingBox(img, box, x1, y1, x2, y2) {
+            const imgWidth = img.naturalWidth;
+            const imgHeight = img.naturalHeight;
+            const displayWidth = img.clientWidth;
+            const displayHeight = img.clientHeight;
+
+            // Calculate scaling factors
+            const scaleX = displayWidth / imgWidth;
+            const scaleY = displayHeight / imgHeight;
+
+            // Scale the bounding box coordinates
+            const scaledX1 = x1 * scaleX;
+            const scaledY1 = y1 * scaleY;
+            const scaledWidth = (x2 - x1) * scaleX;
+            const scaledHeight = (y2 - y1) * scaleY;
+
+            // Apply the bounding box
+            box.style.left = `${scaledX1}px`;
+            box.style.top = `${scaledY1}px`;
+            box.style.width = `${scaledWidth}px`;
+            box.style.height = `${scaledHeight}px`;
+            box.style.display = 'block';
+        }
+
+        // Function to generate story using vLLM API
+        async function generateStory(images) {
+            if (isGenerating) return;
+            isGenerating = true;
+
+            // Reset UI elements
+            updateProgressBar(5);
+
+            // Show progress in main console
+            responseConsole.innerHTML = '<p>Initializing generation...</p>';
+            generationProgress.classList.remove('d-none');
+
+            try {
+                // Create a new AbortController for this request
+                generationController = new AbortController();
+                const signal = generationController.signal;
+
+                // Get API parameters
+                const endpoint = apiEndpoint.value.trim();
+                const temp = parseFloat(temperature.value);
+                const max = parseInt(maxTokens.value);
+
+                // Base prompt or custom prompt
+                let userPrompt = promptText.value.trim();
+
+                // System prompt
+                const systemPrompt = "You are an AI storyteller that can analyze sequences of images and create creative narratives. First think step-by-step to analyze characters, objects, settings, and narrative structure. Then create a grounded story that maintains consistent character identity and object references across frames. Use <think></think> tags to show your reasoning process before writing the final story.";
+
+                
+                if (!userPrompt) {
+                    userPrompt = `Create a story based on these images.`;
+                }
+
+                // Convert images to base64
+                updateProgressBar(10);
+
+                const imagePromises = Array.from(images).map(image => {
+                    return new Promise((resolve, reject) => {
+                        const reader = new FileReader();
+                        reader.onload = () => resolve(reader.result);
+                        reader.onerror = reject;
+                        reader.readAsDataURL(image);
+                    });
+                });
+
+                const base64Images = await Promise.all(imagePromises);
+                updateProgressBar(20);
+
+                // Prepare API request
+
+                // Create messages in the correct format
+                const messages = [
+                    {
+                        "role": "system",
+                        "content": systemPrompt
+                    },
+                    {
+                        "role": "user",
+                        "content": [
+                            {
+                                "type": "text",
+                                "text": userPrompt
+                            },
+                            ...base64Images.map(img => ({
+                                "type": "image_url",
+                                "image_url": {url: img}
+                            }))
+                        ]
+                    }
+                ];
+
+                const requestBody = {
+                    model: modelName.value.trim(),
+                    messages: messages,
+                    temperature: temp,
+                    max_tokens: max,
+                    stream: true
+                };
+
+                updateProgressBar(30);
+
+                // Make streaming API request
+                const response = await fetch(`${endpoint}/chat/completions`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(requestBody),
+                    signal: signal
+                });
+                
+
+                if (!response.ok) {
+                    throw new Error(`API request failed: ${response.status} ${response.statusText}`);
+                }
+
+                updateProgressBar(40);
+
+
+                // Switch to tables tab at the beginning of generation
+                const tablesTabTrigger = new bootstrap.Tab(tablesTab);
+                tablesTabTrigger.show();
+                
+
+                // Process the streaming response
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder('utf-8');
+                let done = false;
+
+                while (!done && isGenerating) {
+                    const {value, done: readerDone} = await reader.read();
+                    done = readerDone;
+
+                    if (done) break;
+
+                    const chunk = decoder.decode(value, {stream: true});
+                    processResponseChunk(chunk);
+
+                    // Update progress
+                    const progressValue = 40 + Math.min(50 * (streamedResponse.length / max), 50);
+                    updateProgressBar(progressValue);
+                }
+                
+                
+                // Final response
+                console.log('Final response:', streamedResponse);
+
+                // Complete the generation
+                if (isGenerating) {
+                    updateProgressBar(95);
+
+                    // Parse and display results
+                    if (cotResponse) {
+                        parseCoT(cotResponse);
+                        createTabbedInterface();
+                    }
+
+                    if (storyResponse) {
+                        parseStory(storyResponse);
+                        createCharacterCards();
+                    }
+
+                    updateProgressBar(100);
+
+                    // Close modal and switch to tables tab
+                    setTimeout(() => {
+                        const tablesTabTrigger = new bootstrap.Tab(tablesTab);
+                        tablesTabTrigger.show();
+                    }, 1500);
+                }
+            } catch (error) {
+                if (error.name === 'AbortError') {
+                    console.log('Fetch aborted');
+                } else {
+                    console.error('Error generating story:', error);
+                }
+            } finally {
+                isGenerating = false;
+                generationController = null;
+            }
+        }
+
+        // Process each chunk from the streaming response
+        function processResponseChunk(chunk) {
+            try {
+                // Split the chunk by data: lines (SSE format)
+                const lines = chunk.split('\n');
+                let parsedChunk = '';
+
+                for (const line of lines) {
+                    if (line.startsWith('data: ')) {
+                        const jsonStr = line.slice(6);
+                        if (jsonStr === '[DONE]') continue;
+
+                        try {
+                            const jsonData = JSON.parse(jsonStr);
+                            if (jsonData.choices && jsonData.choices[0] && jsonData.choices[0].delta && typeof jsonData.choices[0].delta === 'object') {
+                                parsedChunk += jsonData.choices[0].delta.content || '';
+                            }
+                        } catch (e) {
+                            console.warn('Error parsing JSON:', e);
+                        }
+                    }
+                }
+
+                // Add to overall streamed response
+                streamedResponse += parsedChunk;
+
+                // Check for thought mode
+                if (streamedResponse.includes('<think>') && !thoughtMode) {
+                    thoughtMode = true;
+                    cotResponse = ''; // Reset COT response when thought mode begins
+                }
+
+                // Track the number of image sections before parsing
+                let previousImageCount = Object.keys(parsedData).length;
+
+                // Update CoT content while in thought mode
+                if (thoughtMode) {
+                    // Update the CoT content buffer
+                    const thinkStartIndex = streamedResponse.indexOf('<think>');
+                    const thinkEndIndex = streamedResponse.indexOf('</think>');
+
+                    if (thinkStartIndex !== -1) {
+                        if (thinkEndIndex !== -1) {
+                            // We have both opening and closing tags
+                            cotResponse = streamedResponse.substring(thinkStartIndex + 7, thinkEndIndex);
+                        } else {
+                            // We only have opening tag, extract everything after it
+                            cotResponse = streamedResponse.substring(thinkStartIndex + 7);
+                        }
+
+                        // Try to parse tables even with partial CoT
+                        parseCoT(cotResponse);
+                        createTabbedInterface();
+                        createCharacterCards();
+
+                        // Check if new images were added or if narrative structure was added
+                        const currentImageCount = Object.keys(parsedData).length;
+                        const hasNarrativeStructure = parsedData.narrativeStructure !== undefined;
+
+                        if (currentImageCount > previousImageCount) {
+                            // Focus on the newest image tab
+                            const newImageIndex = currentImageCount;
+                            focusTableTab(newImageIndex);
+                        } else if (hasNarrativeStructure) {
+                            // Focus on the narrative structure tab if it's newly added
+                            focusTableTab('narrative');
+                        }
+                    }
+                }
+
+                // Check for end of thought mode
+                if (thoughtMode && streamedResponse.includes('</think>')) {
+                    thoughtMode = false;
+
+                    // Extract final CoT content
+                    const thinkMatch = streamedResponse.match(/<think>([\s\S]*?)<\/think>/);
+                    if (thinkMatch) {
+                        cotResponse = thinkMatch[1];
+                    }
+
+                    // Parse and create tables
+                    parseCoT(cotResponse);
+                    createTabbedInterface();
+                    createCharacterCards();
+
+                    // Switch to Story tab if we are in the table tab
+                    if (document.getElementById('tables-tab').classList.contains('active')) {
+                        const storyTabTrigger = new bootstrap.Tab(storyTab);
+                        storyTabTrigger.show();
+                    }
+                }
+
+                // If we're not in thought mode, this is story content
+                if (!thoughtMode && streamedResponse.includes('</think>')) {
+                    // Extract story content (everything after </think>)
+                    const storyStart = streamedResponse.indexOf('</think>') + 8;
+                    storyResponse = streamedResponse.slice(storyStart).trim();
+
+                    // Parse story in real-time - this will now happen for each chunk
+                    parseStory(storyResponse);
+
+                    // If in story generation mode, switch to story tab to show progress (if in the table tab)
+                    if (!thoughtMode && storyResponse.length > 0 && document.getElementById('tables-tab').classList.contains('active')) {
+                        const storyTabTrigger = new bootstrap.Tab(storyTab);
+                        storyTabTrigger.show();
+                    }
+                }
+
+                // Update the console with the latest content
+                updateConsole(streamedResponse);
+            } catch (error) {
+                console.error('Error processing chunk:', error);
+            }
+        }
+
+
+        // Update progress bar
+        function updateProgressBar(percent) {
+            const progressBars = document.querySelectorAll('.progress-bar');
+            progressBars.forEach(bar => {
+                bar.style.width = `${percent}%`;
+                bar.setAttribute('aria-valuenow', percent);
+            });
+
+            document.getElementById('generationProgress').classList.remove('d-none');
+        }
+
+        // Update the console with response content
+        function updateConsole(content) {
+            // Format the content for display
+            let formattedContent = content;
+
+            // Highlight <think> sections
+            formattedContent = formattedContent.replace(/<think>/g, '<span style="color: #4361ee;"><strong>&lt;think&gt;</strong></span>');
+            formattedContent = formattedContent.replace(/<\/think>/g, '<span style="color: #4361ee;"><strong>&lt;/think&gt;</strong></span>');
+
+            // Highlight other tags
+            formattedContent = formattedContent.replace(/<gdi[^>]*>/g, '<span style="color: #f72585;"><strong>$&</strong></span>');
+            formattedContent = formattedContent.replace(/<\/gdi>/g, '<span style="color: #f72585;"><strong>$&</strong></span>');
+
+            formattedContent = formattedContent.replace(/<gdo[^>]*>/g, '<span style="color: #4361ee;"><strong>$&</strong></span>');
+            formattedContent = formattedContent.replace(/<\/gdo>/g, '<span style="color: #4361ee;"><strong>$&</strong></span>');
+
+            formattedContent = formattedContent.replace(/<gda[^>]*>/g, '<span style="color: #4cc9f0;"><strong>$&</strong></span>');
+            formattedContent = formattedContent.replace(/<\/gda>/g, '<span style="color: #4cc9f0;"><strong>$&</strong></span>');
+
+            formattedContent = formattedContent.replace(/<gdl[^>]*>/g, '<span style="color: #f72585;"><strong>$&</strong></span>');
+            formattedContent = formattedContent.replace(/<\/gdl>/g, '<span style="color: #f72585;"><strong>$&</strong></span>');
+
+            // Convert markdown tables to HTML for better display
+            formattedContent = formatMarkdownTables(formattedContent);
+
+            // Update the console elements
+            responseConsole.innerHTML = formattedContent;
+
+            // Auto-scroll to bottom
+            responseConsole.scrollTop = responseConsole.scrollHeight;
+        }
+
+        // Format markdown tables in the console output
+        function formatMarkdownTables(text) {
+            // Find markdown table sections
+            const tablePattern = /(\|[^\n]+\|\n)((?:\|[^\n]+\|\n)+)/g;
+
+            return text.replace(tablePattern, (match, headerRow, bodyRows) => {
+                // Split into rows
+                const header = headerRow.trim();
+                const rows = bodyRows.trim().split('\n');
+
+                // Check if the second row is a separator row (contains only |, -, and spaces)
+                const isSeparatorRow = rows[0].replace(/[\|\-\s]/g, '').length === 0;
+
+                // If it's a proper markdown table with separator row, skip the separator row
+                const tableRows = isSeparatorRow ? rows.slice(1) : rows;
+
+                // Create HTML table
+                let htmlTable = '<div class="table-responsive"><table class="table table-sm table-bordered">';
+
+                // Add header
+                htmlTable += '<thead><tr>';
+                const headerCells = header.split('|').filter(cell => cell.trim());
+                headerCells.forEach(cell => {
+                    htmlTable += `<th>${cell.trim()}</th>`;
+                });
+                htmlTable += '</tr></thead>';
+
+                // Add body
+                htmlTable += '<tbody>';
+                tableRows.forEach(row => {
+                    htmlTable += '<tr>';
+                    const cells = row.split('|').filter(cell => cell.trim());
+                    cells.forEach(cell => {
+                        htmlTable += `<td>${cell.trim()}</td>`;
+                    });
+                    htmlTable += '</tr>';
+                });
+                htmlTable += '</tbody></table></div>';
+
+                return htmlTable;
+            });
+        }
+
+        function focusTableTab(index) {
+            // Find the tab element
+            const tabId = `image-tab-${index}`;
+            const tabElement = document.getElementById(tabId);
+
+            if (tabElement) {
+                // Create a Bootstrap Tab instance and show it
+                const tab = new bootstrap.Tab(tabElement);
+                tab.show();
+            } else if (index === 'narrative') {
+                // Specifically trying to show narrative tab
+                const narrativeTabElement = document.getElementById('narrative-tab');
+                if (narrativeTabElement) {
+                    const tab = new bootstrap.Tab(narrativeTabElement);
+                    tab.show();
+                }
+            }
+        }
+
+
+        // New function to create the narrative structure table
+        function createNarrativeTable(narrativeData) {
+            const section = document.createElement('div');
+            section.innerHTML = `<h4><i class="fas fa-book me-2"></i>Narrative Structure</h4>`;
+
+            const tableContainer = document.createElement('div');
+            tableContainer.className = 'table-responsive';
+
+            const table = document.createElement('table');
+            table.className = 'table table-striped table-bordered';
+
+            // Add header
+            const headerRow = document.createElement('tr');
+            narrativeData.headers.forEach(header => {
+                const th = document.createElement('th');
+                th.textContent = header;
+                headerRow.appendChild(th);
+            });
+
+            const thead = document.createElement('thead');
+            thead.appendChild(headerRow);
+            table.appendChild(thead);
+
+            // Add body
+            const tbody = document.createElement('tbody');
+            narrativeData.rows.forEach(row => {
+                const tr = document.createElement('tr');
+
+                narrativeData.headers.forEach(header => {
+                    const key = header.toLowerCase().replace(/\s+/g, '_');
+                    const td = document.createElement('td');
+                    td.textContent = row[key] || '';
+                    tr.appendChild(td);
+                });
+
+                tbody.appendChild(tr);
+            });
+
+            table.appendChild(tbody);
+            tableContainer.appendChild(table);
+            section.appendChild(tableContainer);
+
+            return section;
+        }
+    });
+</script>
+        
