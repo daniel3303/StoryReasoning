@@ -1,0 +1,7 @@
+__pycache__/
+.idea/
+*.pyc
+*.egg-info/
+personal-notes.txt
+.ipynb_checkpoints/
+credentials/
