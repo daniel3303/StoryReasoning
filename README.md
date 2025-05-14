@@ -165,14 +165,19 @@ Qwen Storyteller produces two main outputs:
 
 ## Training Your Own Model
 
-We provide scripts to fine-tune Qwen2.5-VL on the StoryReasoning dataset:
+We provide the `story_reasoning/train/train_story_reasoning.py` script to fine-tune Qwen2.5-VL on the StoryReasoning dataset, this
+script can be easily adapted to train any other vision-language model available in the HuggingFace library.
 
 ```bash
-# Run LoRA fine-tuning
-python train.py --lora-rank 2048 --lora-alpha 4096 --batch-size 32 --learning-rate 1e-4
+# Run LoRA fine-tuning with distributed training and high memory efficiency (using Liger Kernel)
+accelerate launch --mixed_precision bf16 --fsdp_backward_prefetch NO_PREFETCH --fsdp_offload_params true --use_fsdp --fsdp_sharding_strategy 2 --fsdp_auto_wrap_policy TRANSFORMER_BASED_WRAP --fsdp_transformer_layer_cls_to_wrap Qwen2_5_VLVisionBlock,Qwen2_5_VLDecoderLayer --num_machines 1 --num_processes 2 --gpu_ids "0,1" --dynamo_backend no story_reasoning/train/train_story_reasoning.py --model Qwen/Qwen2.5-VL-7B-Instruct --hf_repo daniel3303/StoryReasoning --warmup_ratio 0.03 --weight_decay 0.01 --dataset_name story_reasoning --per_device_train_batch_size 1 --num_train_epochs 3 --save_steps 100  --save_total_limit 10 --max_seq_length 32768 --logging_steps 1  --learning_rate 2e-4 --gradient_accumulation_steps 32 --output_dir /tmp/qwen-story-reasoning-lora-r16-b64-lr2e4 --run_name qwen-story-reasoning-lora-r16-b64-lr2e4 --rank 16 --bf16 true --gradient_checkpointing true --torch_empty_cache_steps 1 --use_liger_kernel true
 
-# Run full model fine-tuning
-python train.py --full-finetune --batch-size 64 --learning-rate 2e-5
+# Run full model fine-tuning with distributed training and high memory efficiency (using Liger Kernel)
+accelerate launch --mixed_precision bf16 --fsdp_backward_prefetch NO_PREFETCH --fsdp_offload_params true --use_fsdp --fsdp_sharding_strategy 2 --fsdp_auto_wrap_policy TRANSFORMER_BASED_WRAP --fsdp_transformer_layer_cls_to_wrap Qwen2_5_VLVisionBlock,Qwen2_5_VLDecoderLayer --num_machines 1 --num_processes 2 --gpu_ids "0,1" --dynamo_backend no story_reasoning/train/train_story_reasoning.py --model Qwen/Qwen2.5-VL-7B-Instruct --hf_repo daniel3303/StoryReasoning --warmup_ratio 0.03 --weight_decay 0.01 --dataset_name story_reasoning --per_device_train_batch_size 1 --num_train_epochs 4 --save_steps 10  --save_total_limit 10 --max_seq_length 32768 --logging_steps 1 --learning_rate 2e-5 --gradient_accumulation_steps 32 --output_dir /tmp/qwen-story-reasoning-lora-fft-18-b64-lr2e5 --run_name qwen-story-reasoning-fft-18-b64-lr2e5 --full_finetune true --bf16 true --gradient_checkpointing true --torch_empty_cache_steps 1 --use_liger_kernel true
+
+# Run language only fine-tuning with distributed training and high memory efficiency (using Liger Kernel)
+accelerate launch --mixed_precision bf16 --fsdp_backward_prefetch NO_PREFETCH --fsdp_offload_params true --use_fsdp --fsdp_sharding_strategy 2 --fsdp_auto_wrap_policy TRANSFORMER_BASED_WRAP --fsdp_transformer_layer_cls_to_wrap Qwen2_5_VLVisionBlock,Qwen2_5_VLDecoderLayer --num_machines 1 --num_processes 2 --gpu_ids "0,1" --dynamo_backend no story_reasoning/train/train_story_reasoning.py --model Qwen/Qwen2.5-VL-7B-Instruct --hf_repo daniel3303/StoryReasoning --warmup_ratio 0.03 --weight_decay 0.01 --dataset_name story_reasoning --per_device_train_batch_size 1 --num_train_epochs 4 --save_steps 10  --save_total_limit 10 --max_seq_length 32768 --logging_steps 1 --learning_rate 2e-5 --gradient_accumulation_steps 32 --output_dir /tmp/qwen-story-reasoning-lora-fft-18-b64-lr2e5 --run_name qwen-story-reasoning-fft-18-b64-lr2e5 --language_finetune true --bf16 true --gradient_checkpointing true --torch_empty_cache_steps 1 --use_liger_kernel true 
+
 ```
 
 ## Citation
@@ -180,12 +185,7 @@ python train.py --full-finetune --batch-size 64 --learning-rate 2e-5
 If you use this code or dataset in your research, please cite:
 
 ```bibtex
-@inproceedings{oliveira2025story,
-  title={StoryReasoning Dataset: Using Chain-of-Thought for Scene Understanding and Grounded Story Generation},
-  author={Oliveira, Daniel A. P. and Matos, David Martins de},
-  booktitle={Proceedings of the Neural Information Processing Systems},
-  year={2025}
-}
+Available soon
 ```
 
 ## Contact
