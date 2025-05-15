@@ -1,7 +1,7 @@
 import json
 import math
 from dataclasses import dataclass
-from typing import Optional, Tuple
+from typing import Optional, List, Tuple
 
 import PIL
 import numpy as np
