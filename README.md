@@ -37,6 +37,7 @@ Access the model: [Qwen Storyteller on HuggingFace](https://huggingface.co/danie
 # Clone the repository
 git clone https://github.com/daniel3303/StoryReasoning.git
 cd StoryReasoning
+pip install -e .
 
 # Install dependencies
 pip install -r requirements.txt
@@ -185,7 +186,15 @@ accelerate launch --mixed_precision bf16 --fsdp_backward_prefetch NO_PREFETCH --
 If you use this code or dataset in your research, please cite:
 
 ```bibtex
-Available soon
+@misc{oliveira2025storyreasoningdatasetusingchainofthought,
+    title={StoryReasoning Dataset: Using Chain-of-Thought for Scene Understanding and Grounded Story Generation},
+    author={Daniel A. P. Oliveira and David Martins de Matos},
+    year={2025},
+    eprint={2505.10292},
+    archivePrefix={arXiv},
+    primaryClass={cs.CV},
+    url={https://arxiv.org/abs/2505.10292},
+}
 ```
 
 ## Contact

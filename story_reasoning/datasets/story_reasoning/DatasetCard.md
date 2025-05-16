@@ -173,7 +173,15 @@ This dataset can be used for:
 If you use this dataset in your research, please cite:
 
 ```
-TODO
+@misc{oliveira2025storyreasoningdatasetusingchainofthought,
+      title={StoryReasoning Dataset: Using Chain-of-Thought for Scene Understanding and Grounded Story Generation}, 
+      author={Daniel A. P. Oliveira and David Martins de Matos},
+      year={2025},
+      eprint={2505.10292},
+      archivePrefix={arXiv},
+      primaryClass={cs.CV},
+      url={https://arxiv.org/abs/2505.10292}, 
+}
 ```
 
 ## Dataset Splits
